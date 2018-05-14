@@ -1,54 +1,60 @@
 var levels = {
     alert: {
-        color: "WHITE_ON_RED",
-        level: 10
-    },
-    debug: {
-        color: "PURPLE",
-        level: 0
-    },
-    HTTP: {
-        color: "LIGHT_TURQUOISE",
-        level: 2
-    },
-    info: {
-        color: "LIGHT_GREEN",
-        level: 2
-    },
-    resource: {
-        color: "LIGHT_BLUE",
-        level: 2
-    },
-    security: {
-        color: "YELLOW",
-        level: 2
-    },
-    "sec-debug": {
-        color: "YELLOW",
-        level: 0
-    },
-    todo: {
-        color: "BLACK_ON_LIGHT_GREEN",
-        level: 1
-    },
-    warning: {
-        color: "BLACK_ON_LIGHT_YELLOW",
-        level: 1
+        level: 0,
+        messageColor: "WHITE_ON_RED",
+        labelColor: "WHITE_ON_RED",
+        srcColor: "WHITE_ON_RED",
+        metaColor: "WHITE_ON_RED"
     },
     error: {
-        color: "LIGHT_RED",
-        level: 1
+        level: 1,
+        messageColor: "WHITE",
+        labelColor: "RED",
+        srcColor: "WHITE_ON_RED",
+        metaColor: "RED"
     },
-    "deprecated": {
-        color: "BLACK_ON_YELLOW",
-        level: 0
+    warning: {
+        level: 2,
+        messageColor: "WHITE",
+        labelColor: "YELLOW",
+        metaColor: "GRAY",
+        srcColor: "YELLOW_ON_YELLOW",
+    },
+    info: {
+        level: 3,
+        messageColor: "WHITE",
+        labelColor: "GREEN",
+        srcColor: "WHITE_ON_BLUE",
+        metaColor: "GRAY"
+    },
+    time:{
+        level: 3,
+        messageColor: "PURPLE",
+        labelColor: "WHITE_ON_PURPLE",
+        srcColor: "WHITE_ON_PURPLE",
+        metaColor: "GRAY"
+    },
+    debug:{
+        level: 4,
+        messageColor: "WHITE",
+        labelColor: "PURPLE",
+        srcColor: "WHITE_ON_BLUE",
+        metaColor: "GRAY"
+    },
+    todo: {
+        level: 4,
+        messageColor: "WHITE",
+        labelColor: "WHITE_ON_GREEN",
+        srcColor: "WHITE_ON_BLUE",
+        metaColor: "GRAY"
+    },
+    deprecated: {
+        level: 4,
+        messageColor: "WHITE",
+        labelColor: "YELLOW_ON_YELLOW",
+        srcColor: "WHITE_ON_BLUE",
+        metaColor: "GRAY"
     }
 }
-
-Object.defineProperties(levels,{
-    "base":{
-        value: ["debug","error","info","alert"]
-    }
-});
 
 module.exports = levels;

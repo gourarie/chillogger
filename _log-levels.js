@@ -1,10 +1,10 @@
-var levels = {
+const levels = {
     alert: {
         level: 0,
-        messageColor: "WHITE_ON_RED",
+        messageColor: "RED",
         labelColor: "WHITE_ON_RED",
         srcColor: "WHITE_ON_RED",
-        metaColor: "WHITE_ON_RED"
+        metaColor: "YELLOW"
     },
     error: {
         level: 1,

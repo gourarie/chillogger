@@ -1,8 +1,9 @@
-
-const levels = require("./_log-levels.js");
 const LogMessageTransformer = require("./_log-message-transformer.js");
 const color = require("./color");
-    
+const levels = require("./_log-levels.js");
+
+
+
 function paddRight(input, count, char) { return ((input + char.repeat(count))).substring(0, count); }
 function paddLeft(input, count, char) { return ((char.repeat(count) + input)).slice(-1 * count); }
 
@@ -13,8 +14,13 @@ function formatDate(ts) {
 
 const idColW = 40;
 
-function writeToConsole(msg) {
-    let level = levels[msg.level];
+function fromCamelCase(inputString) {
+    return inputString.replace(/[A-Z]+/g, function (_match) {
+        return ` ${_match.toLowerCase()}`
+    }).trim()
+}
+
+function writeToConsole(msg, level) {
     var line = color(paddRight(msg.level, 10, " "), level.labelColor);
     line += color(` : ${formatDate(msg.ts)} | `,"WHITE");
     line += color((msg.cc ? `${msg.cc.padEnd(24).substring(0,24)} ` : `${" ".repeat(25)}`), "GREEN");
@@ -34,12 +40,12 @@ function writeToConsole(msg) {
 
 const NS_PER_SEC = 1e9;
 
-module.exports = function (correlate, transport = writeToConsole) {
-    var _transformer = LogMessageTransformer(correlate);
+module.exports = function (correlate, transport = writeToConsole, logLevels = levels) {
+    var _transformer = LogMessageTransformer(correlate, logLevels);
     var _producer = function (level, msg) {
         if (level === undefined) return
         var _msg = _transformer(level, msg);
-        transport(_msg);
+        transport(_msg,logLevels[_msg.level]);
     }
     Object.defineProperties(_producer, {
         meta: {
@@ -52,14 +58,14 @@ module.exports = function (correlate, transport = writeToConsole) {
             value: {}
         },
         time: {
-            value: function time(label = "main") {
-                _producer.timeline[label] = _transformer.timeStamp()
+            value: function time(label = "main",stackLinesToSkip = 0) {
+                _producer.timeline[label] = _transformer.timeStamp(undefined,undefined,stackLinesToSkip)
             }
         },
         timeEnd: {
             value: function timeEnd(label = "main") {
                 if (_producer.timeline[label]) {
-                    let timeEndInfo = _transformer.timeStamp(_producer.timeline[label].ts, _producer.timeline[label].srcInfo);
+                    let timeEndInfo = _transformer.timeStamp(_producer.timeline[label].ts, _producer.timeline[label]);
                     let timeDif = Math.round((timeEndInfo.ts[0] * NS_PER_SEC + timeEndInfo.ts[1])/1000)/1000;
                     timeEndInfo.message = `${label}: ${timeDif}ms `;
                     _producer("time", timeEndInfo);
@@ -67,5 +73,6 @@ module.exports = function (correlate, transport = writeToConsole) {
             }
         }
     });
+    _producer.time("main",1);
     return _producer;
 };

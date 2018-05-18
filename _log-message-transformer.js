@@ -1,4 +1,3 @@
-const logLevels = require("./_log-levels.js");
 const hostname = { host: require("os").hostname() };
 const crypto = require("crypto");
 LogId = function () {
@@ -8,12 +7,6 @@ LogId = function () {
 Error.stackTraceLimit = 10;
 const defaultLevel = "debug", debug = true;
 
-function fromCamelCase(inputString) {
-    return inputString.replace(/[A-Z]+/g, function (_match) {
-        return ` ${_match.toLowerCase()}`
-    }).trim()
-}
-
 var parseStack = function parseStack(stack, skip = 0) {
     var expression = /at ([\.a-zA-Z0-9\[\]\<\>]*).*(?:[\/\\](?:([a-z0-9\-._]*)\:([0-9]*)\:))/g;
     for (var i = 0; i < skip; i++) { expression.exec(stack); }
@@ -21,7 +14,7 @@ var parseStack = function parseStack(stack, skip = 0) {
         let [match, caller, file, line] = expression.exec(stack);
         return {
             file: file,
-            caller: fromCamelCase(caller.split(".").pop()),
+            caller: caller.split(".").pop(),
             line: line
         };
     } catch (error) {
@@ -37,7 +30,7 @@ var parseStack = function parseStack(stack, skip = 0) {
 
 function paddLeft(input, count, char) { return ((char.repeat(count) + input)).slice(-1 * count); }
 
-module.exports = function LogMessageTransformer(correlate) {
+const LogMessageTransformer = function LogMessageTransformer(correlate, logLevels) {
     var _meta = [];
     var corrCode;
     switch (true) {
@@ -57,12 +50,11 @@ module.exports = function LogMessageTransformer(correlate) {
 
     var _log = function log(arg1, srcMsg) {
         var _msg = {
-            meta: _meta,
             ts: Date.now(),
             pids: pids,
             cc: corrCode
         };
-
+        
         switch (true) {
             case arg1 instanceof Error:
                 _msg.meta = [arg1.stack];
@@ -71,7 +63,7 @@ module.exports = function LogMessageTransformer(correlate) {
                 break;
             case srcMsg instanceof Error:
                 _msg.meta = [srcMsg.stack];
-            case typeof(srcMsg) === "object":
+            case typeof (srcMsg) === "object":
                 _msg.src = srcMsg.src;
                 _msg.msg = srcMsg.message;
                 _msg.level = logLevels[arg1] ? arg1 : defaultLevel;
@@ -79,15 +71,14 @@ module.exports = function LogMessageTransformer(correlate) {
             case !srcMsg:
                 _msg.msg = arg1;
                 _msg.level = defaultLevel;
-                _msg.meta = _meta;
-                _meta = [];
                 break;
             default:
                 _msg.msg = srcMsg;
                 _msg.level = logLevels[arg1] ? arg1 : defaultLevel;
-                _msg.meta = _meta
-                _meta = [];
         }
+        _msg.meta = (_msg.meta || []).concat(_meta);
+        _meta = [];
+
         if (debug && !_msg.src) {
             Error.captureStackTrace(_msg, log.caller);
             _msg.src = parseStack(_msg.stack);
@@ -105,17 +96,21 @@ module.exports = function LogMessageTransformer(correlate) {
             value: corrCode
         },
         timeStamp: {
-            value: function timeStamp(baseTs, eventOriginInfo) {
-                
+            value: function timeStamp(baseTs, eventOriginInfo,stackLinesToSkip=0) {
                 let lebalObject = {
                     ts: process.hrtime(baseTs)
                 }
                 if (debug) {
                     Error.captureStackTrace(lebalObject, timeStamp.caller);
-                    lebalObject.src = parseStack(lebalObject.stack,2);
-                    if (eventOriginInfo) lebalObject.src.caller = `${eventOriginInfo} -> ${lebalObject.src.caller}`;
-                    else lebalObject.srcInfo = `${lebalObject.src.file}:${lebalObject.src.line}`
+                    lebalObject.src = parseStack(lebalObject.stack,stackLinesToSkip);
+
+                    if (eventOriginInfo) {
+                        _log.meta = { origin: `${eventOriginInfo.src.file}:${eventOriginInfo.src.line} | ${eventOriginInfo.src.caller}` }
+                        // _log.meta = { end: `${lebalObject.src.file}:${lebalObject.src.line} | ${lebalObject.src.caller}` }
+                    }
                 }
+                // else lebalObject.srcInfo = `${lebalObject.src.file}:${lebalObject.src.line}`
+
                 return lebalObject
             }
         }
@@ -123,3 +118,5 @@ module.exports = function LogMessageTransformer(correlate) {
 
     return _log;
 }
+
+module.exports = LogMessageTransformer;

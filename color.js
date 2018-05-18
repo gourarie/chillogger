@@ -57,7 +57,9 @@ const _colors = {
     "DARK_TURQUOISE_ON_GRAY": "\u001b[0;47;36m",
 }
 
-module.exports = function (input, color) {
-    color = color || "DEFAULT";
-    return `${_colors[color.toUpperCase()]}${input}${_colors.RESET}`;
+const color = function (input, _color) {
+    _color = _color || "DEFAULT";
+    return `${_colors[_color.toUpperCase()]}${input}${_colors.RESET}`;
 };
+
+module.exports = color;

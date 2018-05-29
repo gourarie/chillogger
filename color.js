@@ -59,7 +59,7 @@ const _colors = {
 
 const color = function (input, _color) {
     _color = _color || "DEFAULT";
-    return `${_colors[_color.toUpperCase()]}${input}${_colors.RESET}`;
+    return _colors[_color.toUpperCase()]+input+_colors.RESET;
 };
 
 module.exports = color;

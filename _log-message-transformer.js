@@ -1,11 +1,12 @@
 const hostname = { host: require("os").hostname() };
 const crypto = require("crypto");
 LogId = function () {
-    return (Number(Date.now()).toString(16) + crypto.prng(6).toString("hex")).toUpperCase();
+    let logId = (Number(Date.now()).toString(16) + crypto.prng(7).toString("hex")).toUpperCase();
+    return logId.slice(1)
 }
 
 Error.stackTraceLimit = 10;
-const defaultLevel = "debug", debug = true;
+const defaultLevel = "debug";
 
 var parseStack = function parseStack(stack, skip = 0) {
     var expression = /at ([\.a-zA-Z0-9\[\]\<\>]*).*(?:[\/\\](?:([a-z0-9\-._]*)\:([0-9]*)\:))/g;
@@ -25,10 +26,9 @@ var parseStack = function parseStack(stack, skip = 0) {
             stack: stack
         };
     }
-
 }
 
-function paddLeft(input, count, char) { return ((char.repeat(count) + input)).slice(-1 * count); }
+function padLeft(input, count, char) { return ((char.repeat(count) + input)).slice(-1 * count); }
 
 const LogMessageTransformer = function LogMessageTransformer(correlate, logLevels) {
     var _meta = [];
@@ -44,9 +44,14 @@ const LogMessageTransformer = function LogMessageTransformer(correlate, logLevel
             corrCode = undefined;
             break;
     };
-    let pids = [process.env.sn || "system", paddLeft(process.env.swid || "", 2, "0") || "00"]
+
+    let pids = process.env.sn ? [process.env.sn, padLeft(process.env.swid || "", 2, "0") || "00"]
         .filter(function (item) { return item })
-        .join("#"); //producer id string
+        .join("#") : ""; //producer id string
+
+    function logLevel(level) {
+        return logLevels[level] ? level : defaultLevel
+    }
 
     var _log = function log(arg1, srcMsg) {
         var _msg = {
@@ -54,7 +59,7 @@ const LogMessageTransformer = function LogMessageTransformer(correlate, logLevel
             pids: pids,
             cc: corrCode
         };
-        
+
         switch (true) {
             case arg1 instanceof Error:
                 _msg.meta = [arg1.stack];
@@ -63,10 +68,16 @@ const LogMessageTransformer = function LogMessageTransformer(correlate, logLevel
                 break;
             case srcMsg instanceof Error:
                 _msg.meta = [srcMsg.stack];
+                break;
+            case typeof (arg1) === "object":
+                _msg.src = _msg.stack? parseStack(_msg.stack) : null;
+                _msg.msg = arg1.message || JSON.stringify(arg1);
+                _msg.level = arg1.stack ? logLevel("error") : defaultLevel;
+                break;
             case typeof (srcMsg) === "object":
                 _msg.src = srcMsg.src;
-                _msg.msg = srcMsg.message;
-                _msg.level = logLevels[arg1] ? arg1 : defaultLevel;
+                _msg.msg = srcMsg.message || JSON.stringify(srcMsg);
+                _msg.level = logLevel(arg1);
                 break;
             case !srcMsg:
                 _msg.msg = arg1;
@@ -74,12 +85,12 @@ const LogMessageTransformer = function LogMessageTransformer(correlate, logLevel
                 break;
             default:
                 _msg.msg = srcMsg;
-                _msg.level = logLevels[arg1] ? arg1 : defaultLevel;
+                _msg.level = logLevel(arg1);
         }
         _msg.meta = (_msg.meta || []).concat(_meta);
         _meta = [];
 
-        if (debug && !_msg.src) {
+        if (_log.trace && !_msg.src) {
             Error.captureStackTrace(_msg, log.caller);
             _msg.src = parseStack(_msg.stack);
         }
@@ -88,6 +99,11 @@ const LogMessageTransformer = function LogMessageTransformer(correlate, logLevel
     }
 
     Object.defineProperties(_log, {
+        trace: {
+            get: function () {
+                return process.env.trace
+            }
+        },
         meta: {
             get: function () { return _meta },
             set: function (value) { if (value) _meta.push(value) }
@@ -96,21 +112,18 @@ const LogMessageTransformer = function LogMessageTransformer(correlate, logLevel
             value: corrCode
         },
         timeStamp: {
-            value: function timeStamp(baseTs, eventOriginInfo,stackLinesToSkip=0) {
+            value: function timeStamp(baseTs, eventOriginInfo, stackLinesToSkip = 0) {
                 let lebalObject = {
                     ts: process.hrtime(baseTs)
                 }
-                if (debug) {
+                if (_log.trace) {
                     Error.captureStackTrace(lebalObject, timeStamp.caller);
-                    lebalObject.src = parseStack(lebalObject.stack,stackLinesToSkip);
+                    lebalObject.src = parseStack(lebalObject.stack, stackLinesToSkip);
 
                     if (eventOriginInfo) {
                         _log.meta = { origin: `${eventOriginInfo.src.file}:${eventOriginInfo.src.line} | ${eventOriginInfo.src.caller}` }
-                        // _log.meta = { end: `${lebalObject.src.file}:${lebalObject.src.line} | ${lebalObject.src.caller}` }
                     }
                 }
-                // else lebalObject.srcInfo = `${lebalObject.src.file}:${lebalObject.src.line}`
-
                 return lebalObject
             }
         }

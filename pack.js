@@ -57,7 +57,7 @@ function testLogger(modulePath, testName) {
 
 fs.writeFileSync(buildName, code);
 
-// testLogger(buildName, "build version")
+testLogger(buildName, "build version")
 
 code = execSync(`minify ${buildName}`);
 fs.writeFileSync(miniName, `/*
@@ -66,4 +66,4 @@ ${code}`);
 
 
 testLogger(miniName, "mini version")
-fs.unlinkSync(buildName)
+// fs.unlinkSync(buildName)

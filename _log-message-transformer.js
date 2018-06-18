@@ -70,12 +70,12 @@ const LogMessageTransformer = function LogMessageTransformer(correlate, logLevel
                 _msg.meta = [srcMsg.stack];
                 break;
             case typeof (arg1) === "object":
-                _msg.src = _msg.stack? parseStack(_msg.stack) : null;
+                _msg.src = _msg.stack ? parseStack(_msg.stack) : null;
                 _msg.msg = arg1.message || JSON.stringify(arg1);
                 _msg.level = arg1.stack ? logLevel("error") : defaultLevel;
                 break;
             case typeof (srcMsg) === "object":
-                _msg.src = srcMsg.src;
+                _msg.src = _log.trace ? (srcMsg.src || srcMsg.stack ? parseStack(srcMsg.stack) : null) : "";
                 _msg.msg = srcMsg.message || JSON.stringify(srcMsg);
                 _msg.level = logLevel(arg1);
                 break;
@@ -91,7 +91,7 @@ const LogMessageTransformer = function LogMessageTransformer(correlate, logLevel
         _meta = [];
 
         if (_log.trace && !_msg.src) {
-            Error.captureStackTrace(_msg, log.caller);
+            if (!_msg.stack) Error.captureStackTrace(_msg, log.caller);
             _msg.src = parseStack(_msg.stack);
         }
         Object.assign(_msg, hostname);

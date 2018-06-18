@@ -20,13 +20,14 @@ const messageIdPlaceHolder = " ".repeat(messageIdPlaceHolderSpace);
 const logLevelSpace = 10
 
 function writeToConsole(msg, level) {
+    if (level.level > process.env.consoleLogLevel) return;
     var line = color(padRight(msg.level, logLevelSpace, " "), level.labelColor);
     let metaPrefixLength = logLevelSpace + 4;
     let dateString = formatDate(msg.ts);
     metaPrefixLength += dateString.length + messageIdPlaceHolderSpace + 3;
     line += color(` : ${dateString} | `,"WHITE");
     
-    line += color(msg.cc ? msg.cc : messageIdPlaceHolder, "GREEN") + " ";
+    line += color(msg.cc ? padRight(msg.cc,messageIdPlaceHolderSpace, " ") : messageIdPlaceHolder, "GREEN") + " ";
     if (msg.pids) {
         line += color(padLeft(msg.pids+" ", pidPlaceHolderLength ," "), "PURPLE");
         metaPrefixLength +=pidPlaceHolderLength;
@@ -106,4 +107,18 @@ module.exports.trace = function(){
 }
 module.exports.stopTrace = function(){
     process.env.trace = false;
+}
+
+process.env.consoleLogLevel = levels.info.level;
+module.exports.consoleLevel = function(newLevel){
+    switch (typeof(newLevel)) {
+        case "string":
+            process.env.consoleLogLevel = (levels[newLevel] || {level: process.env.consoleLogLevel}).level
+            break;
+        case "number": 
+            process.env.consoleLogLevel =  newLevel;
+            break;
+        default:
+            break;
+    }
 }

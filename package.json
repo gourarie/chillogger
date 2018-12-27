@@ -1,5 +1,5 @@
 {
-    "name": "web-hacker",
+    "name": "logger",
     "version": "1.0.0",
     "description": "logger from the future",
     "main": "logger.js",

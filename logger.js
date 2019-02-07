@@ -124,3 +124,13 @@ module.exports.consoleLevel = function(newLevel){
             break;
     }
 }
+
+module.exports.ipcLogger = function(){
+    return new Logger(process.env.NS || "", function(msg, level) {
+        process.send({
+          type:"log",
+          msg:msg,
+          level: level
+        });
+      });
+}

@@ -1,6 +1,6 @@
 {
     "name": "logger",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "logger from the future",
     "main": "logger.js",
     "author": "Chen Gour-Arie",

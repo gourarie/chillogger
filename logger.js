@@ -52,7 +52,10 @@ const NS_PER_SEC = 1e9;
 
 module.exports = function (correlate, transport = writeToConsole, logLevels = levels) {
     var _transformer = LogMessageTransformer(correlate, logLevels);
-    var _producer = function (level, msg) {
+    var _producer = function (level, msg, beAProxy) {
+        if (beAProxy) {
+            return transport(msg, level);
+        }
         if (level === undefined) return
         var _msg = _transformer(level, msg);
         transport(_msg, logLevels[_msg.level]);

@@ -50,7 +50,7 @@ function writeToConsole(msg, level) {
 
 const NS_PER_SEC = 1e9;
 
-module.exports = function (correlate, transport = writeToConsole, logLevels = levels) {
+const Logger = function (correlate, transport = writeToConsole, logLevels = levels) {
     var _transformer = LogMessageTransformer(correlate, logLevels);
     var _producer = function (level, msg, beAProxy) {
         if (beAProxy) {
@@ -104,15 +104,15 @@ module.exports = function (correlate, transport = writeToConsole, logLevels = le
     return _producer;
 };
 
-module.exports.trace = function(){
+Logger.trace = function(){
     process.env.trace = true;
 }
-module.exports.stopTrace = function(){
+Logger.stopTrace = function(){
     process.env.trace = false;
 }
 
 process.env.consoleLogLevel = levels.info.level;
-module.exports.consoleLevel = function(newLevel){
+Logger.consoleLevel = function(newLevel){
     switch (typeof(newLevel)) {
         case "string":
             process.env.consoleLogLevel = (levels[newLevel] || {level: process.env.consoleLogLevel}).level
@@ -125,7 +125,9 @@ module.exports.consoleLevel = function(newLevel){
     }
 }
 
-module.exports.ipcLogger = function(){
+
+
+Logger.ipcLogger = function(){
     return new Logger(process.env.NS || "", function(msg, level) {
         process.send({
           type:"log",
@@ -134,3 +136,5 @@ module.exports.ipcLogger = function(){
         });
       });
 }
+
+module.exports = Logger

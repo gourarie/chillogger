@@ -81,7 +81,6 @@ module.exports = function (correlate, transport = writeToConsole, logLevels = le
     }
     const nullFunction = function(){}
 
-    if (transport === writeToConsole)
     Object.defineProperties(_producer, {
         timeline: {
             value: {}

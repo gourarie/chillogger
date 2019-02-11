@@ -20,6 +20,11 @@ const messageIdPlaceHolder = " ".repeat(messageIdPlaceHolderSpace);
 const logLevelSpace = 10
 
 function writeToConsole(msg, level) {
+    if (!level || !msg) {
+        let error = new Error("not enugth data");
+        console.log(color(error.stack,"RED"));
+        return
+    } 
     if (level.level > process.env.consoleLogLevel) return;
     var line = color(padRight(msg.level, logLevelSpace, " "), level.labelColor);
     let metaPrefixLength = logLevelSpace + 4;
@@ -125,16 +130,6 @@ Logger.consoleLevel = function(newLevel){
     }
 }
 
-
-
-Logger.ipcLogger = function(){
-    return new Logger(process.env.NS || "", function(msg, level) {
-        process.send({
-          type:"log",
-          msg:msg,
-          level: level
-        });
-      });
-}
+Logger.consoleTransport = writeToConsole;
 
 module.exports = Logger

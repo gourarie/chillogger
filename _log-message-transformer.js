@@ -1,5 +1,7 @@
 const hostname = { host: require("os").hostname() };
 const crypto = require("crypto");
+const hrtime = require('browser-process-hrtime');
+
 LogId = function () {
     let logId = (Number(Date.now()).toString(16) + crypto.prng(7).toString("hex")).toUpperCase();
     return logId.slice(1)
@@ -114,7 +116,7 @@ const LogMessageTransformer = function LogMessageTransformer(correlate, logLevel
         timeStamp: {
             value: function timeStamp(baseTs, eventOriginInfo, stackLinesToSkip = 0) {
                 let lebalObject = {
-                    ts: process.hrtime(baseTs)
+                    ts: hrtime(baseTs)
                 }
                 if (_log.trace) {
                     Error.captureStackTrace(lebalObject, timeStamp.caller);

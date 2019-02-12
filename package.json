@@ -5,6 +5,7 @@
     "main": "logger.js",
     "author": "Chen Gour-Arie",
     "license" : "Private",
+    "exporting": ".*",
     "dependencies": {
       "browser-process-hrtime":"^1.0.0"
     }

@@ -38,7 +38,7 @@ function writeToConsole(msg, level) {
         metaPrefixLength +=pidPlaceHolderLength;
     }
     if (msg.src) {
-        line += color(`| ${msg.src.file}:${msg.src.line} |`, "WHITE");
+        line += color(`| ${msg.src.file}:${msg.src.line} `, "WHITE");
         // line += color(" " + msg.src.caller + " ", level.srcColor);
     }
     let metaPrefix = color(" ".repeat(metaPrefixLength)+"| ","GRAY");

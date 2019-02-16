@@ -48,6 +48,13 @@ const levels = {
         srcColor: "WHITE_ON_BLUE",
         metaColor: "GRAY"
     },
+    pipeData: {
+        level: 4,
+        messageColor: "WHITE",
+        labelColor: "WHITE_ON_PURPLE",
+        srcColor: "WHITE_ON_PURPLE",
+        metaColor: "GREEN"
+    },
     deprecated: {
         level: 4,
         messageColor: "WHITE",

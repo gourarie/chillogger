@@ -11,19 +11,20 @@ Error.stackTraceLimit = 10;
 const defaultLevel = "debug";
 
 var parseStack = function parseStack(stack, skip = 0) {
-    var expression = /at ([\.a-zA-Z0-9\[\]\<\>]*).*(?:[\/\\](?:([a-z0-9\-._]*)\:([0-9]*)\:))/g;
+    // var expression = /at ([\.a-zA-Z0-9\[\]\<\>]*).*(?:[\/\\](?:([a-z0-9\-._]*)\:([0-9]*)\:))/g;
+    var expression = /at .*(?:[\/\\](?:([a-z0-9\-._]*)\:([0-9]*)\:))/g;
     for (var i = 0; i < skip; i++) { expression.exec(stack); }
     try {
-        let [match, caller, file, line] = expression.exec(stack);
+        let [match, /*caller,*/ file, line] = expression.exec(stack);
         return {
             file: file,
-            caller: caller.split(".").pop(),
+            // caller: caller.split(".").pop(),
             line: line
         };
     } catch (error) {
         return {
             file: "Unknown",
-            caller: "Anonymous function, need to give this function a name",
+            // caller: "Anonymous function, need to give this function a name",
             line: "Unknown",
             stack: stack
         };

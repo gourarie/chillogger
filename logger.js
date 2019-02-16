@@ -39,7 +39,7 @@ function writeToConsole(msg, level) {
     }
     if (msg.src) {
         line += color(`| ${msg.src.file}:${msg.src.line} |`, "WHITE");
-        line += color(" " + msg.src.caller + " ", level.srcColor);
+        // line += color(" " + msg.src.caller + " ", level.srcColor);
     }
     let metaPrefix = color(" ".repeat(metaPrefixLength)+"| ","GRAY");
     line += color("| ", "WHITE");

@@ -124,7 +124,7 @@ const LogMessageTransformer = function LogMessageTransformer(correlate, logLevel
                     lebalObject.src = parseStack(lebalObject.stack, stackLinesToSkip);
 
                     if (eventOriginInfo) {
-                        _log.meta = { origin: `${eventOriginInfo.src.file}:${eventOriginInfo.src.line} | ${eventOriginInfo.src.caller}` }
+                        _log.meta = `origin: ${eventOriginInfo.src.file}:${eventOriginInfo.src.line}}`
                     }
                 }
                 return lebalObject

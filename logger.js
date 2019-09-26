@@ -117,6 +117,7 @@ Logger.stopTrace = function(){
 }
 
 process.env.consoleLogLevel = process.env.consoleLogLevel || levels.info.level;
+
 Logger.consoleLevel = function(newLevel){
     switch (typeof(newLevel)) {
         case "string":

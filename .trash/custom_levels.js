@@ -86,7 +86,7 @@ const levels = {
     }
 }
 
-const Logger = require("./logger");
+const Logger = require("../logger");
 
 let log = new Logger(true, undefined, levels)
 log.meta = "admin@you.io";

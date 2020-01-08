@@ -14,7 +14,7 @@ let buildTime = Date.now();
 let buildName = `./build/${buildTime}-build.js`;
 let miniName = `./build/${buildTime}.mini.js`;
 
-const _logLevels = require("./_log-levels.js");
+const _logLevels = require("../_log-levels.js");
 
 function testLogger(modulePath, testName) {
     function testMain() {

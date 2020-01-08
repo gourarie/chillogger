@@ -61,6 +61,13 @@ const levels = {
         labelColor: "YELLOW_ON_YELLOW",
         srcColor: "WHITE_ON_BLUE",
         metaColor: "GRAY"
+    },
+    trace: {
+        level: 5,
+        messageColor: "WHITE",
+        labelColor: "TURQUOISE_ON_RED",
+        srcColor: "WHITE_ON_BLUE",
+        metaColor: "GRAY"
     }
 }
 

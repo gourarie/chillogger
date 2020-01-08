@@ -13,7 +13,7 @@ const log = Logger("Main",optionalCustomLevels) //A name for logger intanse; nam
 
 log("info", "sdfsdfsdf");
 log.error(new Error("sdfsdf"));
-log.info()
+log.info("info")
 ```
 
 ### Advance

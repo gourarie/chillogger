@@ -1,6 +1,6 @@
 {
   "name": "chillogger",
-  "version": "1.0.31",
+  "version": "1.0.33",
   "description": "logger from the future",
   "main": "logger.js",
   "author": "Chen Gour-Arie",

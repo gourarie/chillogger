@@ -1,3 +1,3 @@
 module.exports = {
-    toStdOut: require("./to-stdout/to-stdout")
+    "node-console": require("./node-console")
 }

@@ -1,10 +1,10 @@
 {
   "name": "chillogger",
-  "version": "1.0.34",
+  "version": "1.0.51",
   "description": "logger from the future",
   "main": "logger.js",
   "author": "Chen Gour-Arie",
-  "license": "Private",
+  "license": "MIT",
   "exporting": ".*",
   "dependencies": {
     "browser-process-hrtime": "^1.0.0"

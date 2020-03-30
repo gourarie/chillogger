@@ -1,13 +1,12 @@
 {
   "name": "chillogger",
-  "version": "1.0.103",
+  "version": "1.0.106",
   "description": "logger from the future",
   "main": "logger.js",
   "author": "Chen Gour-Arie",
   "license": "MIT",
   "repository": {
-    "type": "git",
-    "url": "git://github.com/username/repository.git"
+    "url": "https://github.com/gourarie/chillogger.git"
   },
   "dependencies": {
     "browser-process-hrtime": "^1.0.0"

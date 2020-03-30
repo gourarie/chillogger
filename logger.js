@@ -1,5 +1,4 @@
 const nodeConsole = require("./transports/node-console");
-const NS_PER_SEC = 1e9;
 const crypto = require("crypto");
 const hrtime = require("browser-process-hrtime");
 
@@ -36,6 +35,7 @@ const baseLevels = {
   error: 1,
   warn: 2,
   info: 3,
+  section:4,
   debug: 4,
   todo: 4,
   deprecated: 4,
@@ -78,7 +78,6 @@ module.exports = class Logger {
 
     Object.keys(this.levels).forEach(level => {
       if (typeof(this[level])!=="undefined") return;
-
       Object.defineProperty(this, level, {
         value: this.log.bind(this, level)
       });
@@ -108,7 +107,7 @@ module.exports = class Logger {
   }
 
   $$tranform(levelLabel, tracker, message, ...meta) {
-    levelLabel = this.levels[levelLabel] ? levelLabel : "debug";
+    levelLabel = (typeof(this.levels[levelLabel]) !== "undefined") ? levelLabel : "debug";
     let level = this.levels[levelLabel];
 
     return {
@@ -161,7 +160,9 @@ module.exports = class Logger {
   timeEnd(label) {
     if (!this.trace) return;
     let { file, line, ts } = this.timetrackers[label];
-    let diff = Math.round((ts[0] * NS_PER_SEC + ts[1]) / 1000) / 1000;
-    this.log("time", `${label}: ${diff}`, `Origin: ${file}:${line}`);
+    const tracker = {};
+    Error.captureStackTrace(tracker, 1);
+    let diff = (hrtime(ts) + "ms").replace(",",".");
+    this.$$dispatch(this.$$tranform("time",tracker, `${label}: ${diff}`, `Origin: ${file}:${line}`));
   }
 };

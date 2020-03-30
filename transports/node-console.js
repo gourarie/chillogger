@@ -1,82 +1,52 @@
 const EOL = "\n";
 
-const levels = {
+const levelColors = {
   fatal: {
-    level: 0,
     messageColor: "RED",
     labelColor: "WHITE_ON_RED",
-    srcColor: "WHITE_ON_RED",
-    metaColor: "YELLOW"
+    metaColor: "RED"
   },
   alert: {
-    level: 0,
     messageColor: "RED",
     labelColor: "WHITE_ON_RED",
     srcColor: "WHITE_ON_RED",
     metaColor: "YELLOW"
   },
   error: {
-    level: 1,
     messageColor: "WHITE",
     labelColor: "RED",
-    srcColor: "WHITE_ON_RED",
+    srcColor: "DARK_RED",
     metaColor: "DARK_RED"
   },
   warn: {
-    level: 2,
-    messageColor: "WHITE",
+    messageColor: "DARK_YELLOW",
     labelColor: "YELLOW",
-    metaColor: "GRAY",
-    srcColor: "YELLOW_ON_YELLOW"
+    srcColor: "DARK_YELLOW"
+  },
+  section: {
+    messageColor: "DARK_PURPLE_ON_GRAY",
+    labelColor: "DARK_GREEN_ON_GRAY",
+    nameColor: "BLACK_ON_GRAY",
+    srcColor: -1,
+    tsColor: -1,
   },
   info: {
     level: 3,
-    messageColor: "WHITE",
     labelColor: "GREEN",
-    srcColor: "WHITE_ON_BLUE",
-    metaColor: "GRAY"
   },
   time: {
-    level: 3,
     messageColor: "PURPLE",
     labelColor: "WHITE_ON_PURPLE",
-    srcColor: "WHITE_ON_PURPLE",
-    metaColor: "GRAY"
   },
   debug: {
-    level: 4,
-    messageColor: "WHITE",
     labelColor: "PURPLE",
-    srcColor: "WHITE_ON_BLUE",
-    metaColor: "GRAY"
   },
   todo: {
-    level: 4,
-    messageColor: "WHITE",
     labelColor: "WHITE_ON_GREEN",
-    srcColor: "WHITE_ON_BLUE",
-    metaColor: "GRAY"
-  },
-  pipeData: {
-    level: 4,
-    messageColor: "WHITE",
-    labelColor: "WHITE_ON_PURPLE",
-    srcColor: "WHITE_ON_PURPLE",
-    metaColor: "GREEN"
+    
   },
   deprecated: {
-    level: 4,
-    messageColor: "WHITE",
     labelColor: "YELLOW_ON_YELLOW",
-    srcColor: "WHITE_ON_BLUE",
-    metaColor: "GRAY"
-  },
-  trace: {
-    level: 5,
-    messageColor: "WHITE",
-    labelColor: "TURQUOISE_ON_RED",
-    srcColor: "WHITE_ON_BLUE",
-    metaColor: "GRAY"
   }
 };
 
@@ -140,6 +110,7 @@ const _colors = {
 };
 
 const color = function(input, _color) {
+  if (_color === -1) return "";
   _color = _color || "DEFAULT";
   return _colors[_color.toUpperCase()] + input + _colors.RESET;
 };
@@ -158,9 +129,9 @@ function dateString(ts, verbosity) {
 
   switch (verbosity) {
     case VERBOSITY_LEVELS.VERBOSE:
-      return color(`${t}.${ms}`, "WHITE");
+      return `${t}.${ms}`;
     case VERBOSITY_LEVELS.VERY_VERBOSE:
-      return color(`${yyyy}${mm}${dd} ${t}.${ms}`, "WHITE");
+      return `${yyyy}${mm}${dd} ${t}.${ms}`;
     default:
       return "";
   }
@@ -191,24 +162,36 @@ function withVerbosityPrinter(verbosityLevel, verbosity, string) {
 
 function splitFunctionSourceCode(srouceCode) {
   return srouceCode
-  .toString()
-  .replace(/(\r$)|(\r\n)|(\n)/g,"\n")
-  .replace(/\n\n/g,"\n")
-  .split("\n")
+    .toString()
+    .replace(/(\r$)|(\r\n)|(\n)/g, "\n")
+    .replace(/\n\n/g, "\n")
+    .split("\n");
 }
 
 function expandMeta(meta, metaPrefixLength, metaColor, verbosity) {
   var line = "";
   switch (typeof meta) {
     case "function":
-    if (verbosity < VERBOSITY_LEVELS.VERY_VERBOSE) {
-      let sourceCodeLines = splitFunctionSourceCode(meta);
-      line = " ".repeat(metaPrefixLength) + color(sourceCodeLines[0]+ (sourceCodeLines[1] ? ("...") : "") + EOL,"DARK_YELLOW")
-    }
-    else {
-      line = " ".repeat(metaPrefixLength) + color(meta.toString().replace(/\n/g,"\n"+" ".repeat(metaPrefixLength)+"\t"),"DARK_YELLOW") + EOL
-    }
-    break;
+      if (verbosity < VERBOSITY_LEVELS.VERY_VERBOSE) {
+        let sourceCodeLines = splitFunctionSourceCode(meta);
+        line =
+          " ".repeat(metaPrefixLength) +
+          color(
+            sourceCodeLines[0] + (sourceCodeLines[1] ? "..." : "") + EOL,
+            "DARK_YELLOW"
+          );
+      } else {
+        line =
+          " ".repeat(metaPrefixLength) +
+          color(
+            meta
+              .toString()
+              .replace(/\n/g, "\n" + " ".repeat(metaPrefixLength) + "\t"),
+            "DARK_YELLOW"
+          ) +
+          EOL;
+      }
+      break;
     case "boolean":
     case "string":
     case "number":
@@ -220,21 +203,32 @@ function expandMeta(meta, metaPrefixLength, metaColor, verbosity) {
         meta,
         (key, value) => {
           if (typeof value === "function") {
-            if (verbosity < VERBOSITY_LEVELS.VERY_VERBOSE) return "~chillogger~function~print~" + 
-            splitFunctionSourceCode(value)
-            .shift()+"...~chillogger~function~print~end~"
-            return splitFunctionSourceCode(value)
-              .map(i=>`~chillogger~function~print~${i}`).join("~chillogger~nlf~") + "~chillogger~function~print~end~"
-              
+            if (verbosity < VERBOSITY_LEVELS.VERY_VERBOSE)
+              return (
+                "~chillogger~function~print~" +
+                splitFunctionSourceCode(value).shift() +
+                "...~chillogger~function~print~end~"
+              );
+            return (
+              splitFunctionSourceCode(value)
+                .map(i => `~chillogger~function~print~${i}`)
+                .join("~chillogger~nlf~") + "~chillogger~function~print~end~"
+            );
           }
-          return value
+          return value;
         },
         `\t`
       )
-      
-        .replace(/~chillogger~function~print~end~/g,`${_colors.RESET}${_colors[metaColor]}`)   
-        .replace(/~chillogger~function~print~/g,`${_colors.RESET}${_colors.DARK_YELLOW}`)  
-        .replace(/~chillogger~nlf~/g,"\n"+(" ".repeat(metaPrefixLength)))
+
+        .replace(
+          /~chillogger~function~print~end~/g,
+          `${_colors.RESET}${_colors[metaColor]}`
+        )
+        .replace(
+          /~chillogger~function~print~/g,
+          `${_colors.RESET}${_colors.DARK_YELLOW}`
+        )
+        .replace(/~chillogger~nlf~/g, "\n" + " ".repeat(metaPrefixLength))
         .split("\n")
         .forEach((part, index, array) => {
           line += " ".repeat(metaPrefixLength) + color(part, metaColor) + EOL;
@@ -242,7 +236,26 @@ function expandMeta(meta, metaPrefixLength, metaColor, verbosity) {
     default:
       break;
   }
-  return line
+  return line;
+}
+
+function getColorsByLevel(levelLabel) {
+  let {
+    messageColor = "WHITE",
+    labelColor = "PURPLE",
+    nameColor = "GREEN",
+    srcColor = "DARK_GRAY",
+    tsColor = "GRAY",
+    metaColor = "DARK_GRAY"
+  } = levelColors[levelLabel] || {};
+  return {
+    messageColor,
+    labelColor,
+    nameColor,
+    srcColor,
+    tsColor,
+    metaColor
+  };
 }
 
 var logLinePartsTransformers = {
@@ -250,41 +263,46 @@ var logLinePartsTransformers = {
   levelLabel: (key, levelLabel, fullMessage) => {
     return color(
       levelLabel.padEnd(logLevelSpace),
-      levels[levelLabel].labelColor
+      getColorsByLevel(levelLabel).labelColor
     );
   },
-  ts: (key, ts, fullMessage, { verbosity }) => dateString(ts, verbosity),
-  name: (key, name, fullMessage, { verbosity }) => {
+  ts: (key, ts, {levelLabel}, { verbosity }) => {
+    let { tsColor } = getColorsByLevel(levelLabel);
+    return color(dateString(ts, verbosity),tsColor);
+  },
+  name: (key, name, {levelLabel}, { verbosity }) => {
+    let { nameColor } = getColorsByLevel(levelLabel);
     switch (true) {
       case name && verbosity > 0:
-        return color(" " + name + " ", "GREEN");
+        return color(" " + name + " ", nameColor);
       case name && !verbosity > 0:
-        return color(name + " > ", "GREEN");
+        return color(name + " > ", nameColor);
       case !name && verbosity > 0:
-        return color(" ", "GREEN");
+        return color(" ", nameColor);
       case !name && !(verbosity > 0):
-        return color("> ", "GREEN");
+        return color("> ", nameColor);
     }
     return color(
       verbosity > 0 ? name + " " || "" : name ? name + " > " : "",
-      "GREEN"
+      nameColor
     );
   },
-  src: (key, src, fullMessage, { verbosity }) => {
+  src: (key, src, {levelLabel}, { verbosity }) => {
+    let { nameColor,srcColor } = getColorsByLevel(levelLabel);
     if (src) {
       return withVerbosityPrinter(
         VERBOSITY_LEVELS.VERBOSE,
         verbosity,
-        color(`${src.file}:${src.line} `, "DARK_GRAY") + color("> ", "GREEN")
+        color(`${src.file}:${src.line} `, srcColor) + color(" > ", nameColor)
       );
     }
   },
   message: (key, message, { levelLabel }, { verbosity }) => {
-    let { messageColor } = levels[levelLabel] || {};
+    let { messageColor } = levelColors[levelLabel] || {};
     return color(message, messageColor) + EOL;
   },
   meta: (key, meta, { levelLabel }, { verbosity }) => {
-    let { metaColor } = levels[levelLabel] || {};
+    let { metaColor } = getColorsByLevel(levelLabel);
     if (!verbosity) return "";
     let metaPrefixLength = dateLength(verbosity) + logLevelSpace;
     let line = "";

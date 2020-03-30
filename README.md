@@ -19,11 +19,11 @@ const logger = new Chillogger()
 
 //Usage option 1: using logger.log:
 // logger.log("level", message, ...metaObjects)
-logger.log("info", "info",{"key":value},"string", function;
+logger.log("info", "i am a log message",{"key":value},"string", function);
 
 //Usage option 2: using logger.[level name]:
 // logger.info(message, ...metaObjects)
-log.info("info");
+log.debug("info");
 
 //Usage option 3, only for Error: using logger.error(error):
 // will log error only if it is an object that has "message" on its.
@@ -44,7 +44,7 @@ Instance is created with:
   * `transport`: {function[]} an array of functions that handles new log message, called by the instance with `f(logMessage, loggerInstance)` **Default:** `built in node-console transport`
   * `levels`: {Object} An object mapping log labels (for example "trace") to level (4) **Default:** see `baseLevels`.
   * `level`: {number} Max level to log **Default:** `3` 
-  * `trace`: {boolean} Enables time, and timeEnd, and chillogger's ability to trace log to file/line **Default:** `false`.
+  * `trace`: {boolean} Shows error stack trace, and enables time, and timeEnd, and chillogger's ability to trace log to file/line, **Default:** `false`.
   * `verbosity`: {number} built in console trasnport verbosity use `0`, `1`, or `1` **Default:** `0` 
 * Returns: loggerInstance
   

@@ -1,9 +1,9 @@
 {
   "name": "chillogger",
-  "version": "1.0.106",
-  "description": "logger from the future",
+  "version": "1.0.107",
+  "description": "colorful formatted command line log printer",
   "main": "logger.js",
-  "author": "Chen Gour-Arie",
+  "author": "gourarie",
   "license": "MIT",
   "repository": {
     "url": "https://github.com/gourarie/chillogger.git"
